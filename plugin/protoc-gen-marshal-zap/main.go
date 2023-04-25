@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	pbzap "github.com/kei2100/protoc-gen-marshal-zap"
+	"github.com/stoewer/go-strcase"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -17,7 +19,7 @@ const (
 )
 
 func generateListField(g *protogen.GeneratedFile, f *protogen.Field) {
-	fname := f.Desc.Name()
+	fname := fieldName(f)
 	g.P(fname, "ArrMarshaller := func(enc ", g.QualifiedGoIdent(zapcorePkg.Ident("ArrayEncoder")), ") error {")
 	g.P("for _, v := range x.", f.GoName, " {")
 	switch f.Desc.Kind() {
@@ -59,7 +61,7 @@ func generateListField(g *protogen.GeneratedFile, f *protogen.Field) {
 }
 
 func generateMapField(g *protogen.GeneratedFile, f *protogen.Field) {
-	fname := f.Desc.Name()
+	fname := fieldName(f)
 	g.P("enc.AddObject(\"", fname, "\", ", g.QualifiedGoIdent(zapcorePkg.Ident("ObjectMarshalerFunc")), "(func(enc ", g.QualifiedGoIdent(zapcorePkg.Ident("ObjectEncoder")), ") error {")
 	g.P("for k, v := range x.", f.GoName, " {")
 	switch f.Desc.MapValue().Kind() {
@@ -100,7 +102,7 @@ func generateMapField(g *protogen.GeneratedFile, f *protogen.Field) {
 }
 
 func generatePrimitiveField(g *protogen.GeneratedFile, f *protogen.Field) {
-	fname := f.Desc.Name()
+	fname := fieldName(f)
 	var gname string
 	if f.Oneof != nil {
 		gname = fmt.Sprintf("Get%s()", f.GoName)
@@ -216,8 +218,14 @@ func generateFile(gen *protogen.Plugin, file *protogen.File) *protogen.Generated
 	return g
 }
 
+var camelCase *bool
+
 func main() {
-	protogen.Options{}.Run(func(plugin *protogen.Plugin) error {
+	var flags flag.FlagSet
+	camelCase = flags.Bool("camel_case", false, "field name use camel case")
+	protogen.Options{
+		ParamFunc: flags.Set,
+	}.Run(func(plugin *protogen.Plugin) error {
 		plugin.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 		for _, file := range plugin.FilesByPath {
 			if !file.Generate {
@@ -227,4 +235,11 @@ func main() {
 		}
 		return nil
 	})
+}
+
+func fieldName(f *protogen.Field) string {
+	if *camelCase {
+		return strcase.LowerCamelCase(string(f.Desc.Name()))
+	}
+	return string(f.Desc.Name())
 }
