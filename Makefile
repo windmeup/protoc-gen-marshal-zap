@@ -1,5 +1,5 @@
 GIT_HOST = github.com
-GIT_REPOSITORY = $(GIT_HOST)/kei2100/protoc-gen-marshal-zap
+GIT_REPOSITORY = $(GIT_HOST)/windmeup/protoc-gen-marshal-zap
 PLUGIN_DIR = plugin/protoc-gen-marshal-zap
 PROTOC_OPT ?=
 

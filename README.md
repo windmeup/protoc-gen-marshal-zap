@@ -1,6 +1,6 @@
 # protoc-gen-marshal-zap 
-![test](https://github.com/kei2100/protoc-gen-marshal-zap/workflows/test/badge.svg)
-![CodeQL](https://github.com/kei2100/protoc-gen-marshal-zap/workflows/CodeQL/badge.svg)
+![test](https://github.com/windmeup/protoc-gen-marshal-zap/workflows/test/badge.svg)
+![CodeQL](https://github.com/windmeup/protoc-gen-marshal-zap/workflows/CodeQL/badge.svg)
 
 protoc-gen-marshal-zap is a protoc plugin to generate code that implements zapcore.ObjectMarshaler interface ([uber-go/zap](https://github.com/uber-go/zap)) to the protoc message.
 
@@ -15,7 +15,7 @@ See https://github.com/protocolbuffers/protobuf-go
 ## Installation
 
 ```
-go install github.com/kei2100/protoc-gen-marshal-zap/plugin/protoc-gen-marshal-zap@latest
+go install github.com/windmeup/protoc-gen-marshal-zap/plugin/protoc-gen-marshal-zap@latest
 ```
 
 ## Usage
@@ -39,7 +39,7 @@ Generate the code by protoc (Alternatively, you can [use buf](#Using-Buf))
 
 ```
 PROTOC_GEN_MARSHAL_ZAP_VERSION=v0.1.x  # replace latest version
-protoc -I. -I$(go env GOMODCACHE)/github.com/kei2100/protoc-gen-marshal-zap@${PROTOC_GEN_MARSHAL_ZAP_VERSION} --go_out=. --marshal-zap_out=. simple.proto
+protoc -I. -I$(go env GOMODCACHE)/github.com/windmeup/protoc-gen-marshal-zap@${PROTOC_GEN_MARSHAL_ZAP_VERSION} --go_out=. --marshal-zap_out=camel_case=true:. simple.proto
 ```
 
 Output results should be:
@@ -104,7 +104,9 @@ plugins:
     opt: paths=source_relative
   - plugin: marshal-zap
     out: gen/go
-    opt: paths=source_relative
+    opt: 
+      - paths=source_relative
+      - camel_case=true # camel_case field name
 ```
 
 ## Development
